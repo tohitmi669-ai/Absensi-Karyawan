@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Absensi Karyawan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-email {
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 14px;
+            background: #f3f4f6;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #dc2626;
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 90px auto 40px;
+            padding: 0 20px;
+        }
+        
+        /* Card */
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .card-title i {
+            color: #4f46e5;
+        }
+        
+        /* Welcome section */
+        .welcome-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .welcome-avatar {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 30px;
+            font-weight: 600;
+        }
+        
+        .welcome-text h2 {
+            font-size: 24px;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .welcome-text p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        /* Status lokasi */
+        .location-status {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+        }
+        
+        .status-aman {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+        
+        .status-bahaya {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .status-loading {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        /* Menu grid */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .menu-card {
+            background: #f9fafb;
+            padding: 25px 20px;
+            border-radius: 15px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .menu-card:hover {
+            transform: translateY(-5px);
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.2);
+        }
+        
+        .menu-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+        
+        .menu-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .menu-desc {
+            color: #6b7280;
+            font-size: 12px;
+        }
+        
+        /* Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 12px;
+        }
+        
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        /* Info kantor */
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .info-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+                padding: 15px;
+            }
+            
+            .nav-menu {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .container {
+                margin-top: 140px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📍 AbsensiKaryawan</div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html" class="active">Dashboard</a></li>
+            <li><a href="kehadiran.html">Kehadiran</a></li>
+            <li><a href="riwayat.html">Riwayat</a></li>
+            <li><a href="profil.html">Profil</a></li>
+        </ul>
+        <div class="nav-user">
+            <span class="user-email" id="userEmail">Memuat...</span>
+            <button onclick="logout()" class="btn-logout">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Card Selamat Datang -->
+        <div class="card">
+            <div class="welcome-section">
+                <div class="welcome-avatar" id="userAvatar">K</div>
+                <div class="welcome-text">
+                    <h2>Selamat Datang, <span id="userName">Karyawan</span>!</h2>
+                    <p>Sistem absensi berbasis lokasi • <span id="currentDate"></span></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card Status Lokasi -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📍</span> Status Lokasi
+                </div>
+                <button onclick="refreshLokasi()" style="background: none; border: none; color: #4f46e5; cursor: pointer; font-size: 14px;">↻ Refresh</button>
+            </div>
+            <div id="locationStatus" class="location-status status-loading">
+                <span>⏳</span> Mendapatkan lokasi Anda...
+            </div>
+            <div class="info-row">
+                <span class="info-label">Lokasi Kantor</span>
+                <span class="info-value">-6.200000, 106.816666</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Radius Izin</span>
+                <span class="info-value">100 meter</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Status Hari Ini</span>
+                <span class="info-value" id="statusHariIni">Belum absen</span>
+            </div>
+        </div>
+        
+        <!-- Card Menu Cepat -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>⚡</span> Menu Cepat
+                </div>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-card" onclick="window.location.href='kehadiran.html'">
+                    <div class="menu-icon">📍</div>
+                    <div class="menu-title">Absen Sekarang</div>
+                    <div class="menu-desc">Masuk / Pulang kerja</div>
+                </div>
+                <div class="menu-card" onclick="window.location.href='riwayat.html'">
+                    <div class="menu-icon">📋</div>
+                    <div class="menu-title">Riwayat</div>
+                    <div class="menu-desc">Lihat history absensi</div>
+                </div>
+                <div class="menu-card" onclick="window.location.href='profil.html'">
+                    <div class="menu-icon">👤</div>
+                    <div class="menu-title">Profil</div>
+                    <div class="menu-desc">Data diri Anda</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Card Statistik -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📊</span> Statistik Kehadiran
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalHadir">0</div>
+                    <div class="stat-label">Total Hadir</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTepat">0</div>
+                    <div class="stat-label">Tepat Waktu</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTerlambat">0</div>
+                    <div class="stat-label">Terlambat</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEE3tPOEtWnRxhkGzyVZYjrdyTpkA-3AE",
+            authDomain: "absensi-geolokasi-f8b24.firebaseapp.com",
+            projectId: "absensi-geolokasi-f8b24",
+            storageBucket: "absensi-geolokasi-f8b24.firebasestorage.app",
+            messagingSenderId: "434925560015",
+            appId: "1:434925560015:web:56e2a44f5e41e7bd6f97ba",
+            measurementId: "G-YYZ65MM750"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Koordinat kantor dan radius
+        const KANTOR = { lat: -6.200000, lng: 106.816666 };
+        const RADIUS = 100;
+
+        // Cek login
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                // Tampilkan email
+                document.getElementById('userEmail').textContent = user.email;
+                
+                // Ambil inisial untuk avatar
+                const initial = user.email.charAt(0).toUpperCase();
+                document.getElementById('userAvatar').textContent = initial;
+                
+                // Ambil data user dari Firestore
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists) {
+                            const data = doc.data();
+                            document.getElementById('userName').textContent = data.nama || user.email.split('@')[0];
+                        } else {
+                            document.getElementById('userName').textContent = user.email.split('@')[0];
+                        }
+                    })
+                    .catch(() => {
+                        document.getElementById('userName').textContent = user.email.split('@')[0];
+                    });
+                
+                // Tampilkan tanggal
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById('currentDate').textContent = new Date().toLocaleDateString('id-ID', options);
+                
+                // Cek lokasi
+                cekLokasi();
+                
+                // Cek status absensi hari ini
+                cekStatusHariIni(user.uid);
+                
+                // Load statistik
+                loadStatistik(user.uid);
+            }
+        });
+
+        // Logout
+        window.logout = function() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        };
+
+        // Refresh lokasi
+        window.refreshLokasi = function() {
+            cekLokasi();
+        };
+
+        // Cek lokasi
+        function cekLokasi() {
+            const statusEl = document.getElementById('locationStatus');
+            
+            if (!navigator.geolocation) {
+                statusEl.innerHTML = '<span>❌</span> Browser tidak mendukung geolokasi';
+                statusEl.className = 'location-status status-bahaya';
+                return;
+            }
+
+            statusEl.innerHTML = '<span>⏳</span> Mendapatkan lokasi Anda...';
+            statusEl.className = 'location-status status-loading';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const jarak = hitungJarak(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                        KANTOR.lat,
+                        KANTOR.lng
+                    );
+
+                    if (jarak <= RADIUS) {
+                        statusEl.innerHTML = `<span>✅</span> Anda dalam area kantor (${jarak.toFixed(1)} meter dari kantor)`;
+                        statusEl.className = 'location-status status-aman';
+                    } else {
+                        statusEl.innerHTML = `<span>❌</span> Anda di luar area kantor! (${jarak.toFixed(1)} meter)`;
+                        statusEl.className = 'location-status status-bahaya';
+                    }
+                },
+                (error) => {
+                    let pesan = 'Gagal mendapat lokasi. ';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            pesan += 'Izinkan akses lokasi di browser.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            pesan += 'Lokasi tidak tersedia.';
+                            break;
+                        case error.TIMEOUT:
+                            pesan += 'Waktu habis.';
+                            break;
+                    }
+                    statusEl.innerHTML = `<span>❌</span> ${pesan}`;
+                    statusEl.className = 'location-status status-bahaya';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Hitung jarak (rumus Haversine)
+        function hitungJarak(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
+
+        // Cek status absensi hari ini
+        function cekStatusHariIni(userId) {
+            const today = new Date().toISOString().split('T')[0];
+            
+            db.collection('attendances')
+                .where('userId', '==', userId)
+                .where('tanggal', '==', today)
+                .get()
+                .then((snapshot) => {
+                    const statusEl = document.getElementById('statusHariIni');
+                    
+                    if (snapshot.empty) {
+                        statusEl.textContent = 'Belum absen';
+                        statusEl.style.color = '#f59e0b';
+                    } else {
+                        const data = snapshot.docs[0].data();
+                        if (data.absenMasuk && !data.absenPulang) {
+                            statusEl.textContent = 'Sudah absen masuk';
+                            statusEl.style.color = '#10b981';
+                        } else if (data.absenMasuk && data.absenPulang) {
+                            statusEl.textContent = 'Sudah absen masuk & pulang';
+                            statusEl.style.color = '#4f46e5';
+                        }
+                    }
+                });
+        }
+
+        // Load statistik
+        function loadStatistik(userId) {
+            db.collection('attendances')
+                .where('userId', '==', userId)
+                .get()
+                .then((snapshot) => {
+                    let total = 0;
+                    let terlambat = 0;
+                    
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        total++;
+                        if (data.absenMasuk && data.absenMasuk.waktu > '09:00:00') {
+                            terlambat++;
+                        }
+                    });
+                    
+                    document.getElementById('totalHadir').textContent = total;
+                    document.getElementById('totalTerlambat').textContent = terlambat;
+                    document.getElementById('totalTepat').textContent = total - terlambat;
+                })
+                .catch(() => {
+                    document.getElementById('totalHadir').textContent = '0';
+                    document.getElementById('totalTerlambat').textContent = '0';
+                    document.getElementById('totalTepat').textContent = '0';
+                });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat - Absensi Karyawan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-email {
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 14px;
+            background: #f3f4f6;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 90px auto 40px;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-input {
+            padding: 8px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .btn-filter {
+            padding: 8px 20px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f9fafb;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #1f2937;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #4b5563;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-hadir {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .badge-terlambat {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .badge-pulang {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 50px;
+            color: #6b7280;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #9ca3af;
+        }
+        
+        .empty-state p {
+            margin-top: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-section {
+                justify-content: stretch;
+            }
+            
+            .filter-input {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📍 AbsensiKaryawan</div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="kehadiran.html">Kehadiran</a></li>
+            <li><a href="riwayat.html" class="active">Riwayat</a></li>
+            <li><a href="profil.html">Profil</a></li>
+        </ul>
+        <div class="nav-user">
+            <span class="user-email" id="userEmail">Memuat...</span>
+            <button onclick="logout()" class="btn-logout">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📋</span> Riwayat Kehadiran
+                </div>
+                <div class="filter-section">
+                    <input type="month" id="filterBulan" class="filter-input" value="">
+                    <button onclick="loadRiwayat()" class="btn-filter">Tampilkan</button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Jam Masuk</th>
+                            <th>Jam Pulang</th>
+                            <th>Lokasi</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="5" class="loading">Memuat data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEE3tPOEtWnRxhkGzyVZYjrdyTpkA-3AE",
+            authDomain: "absensi-geolokasi-f8b24.firebaseapp.com",
+            projectId: "absensi-geolokasi-f8b24",
+            storageBucket: "absensi-geolokasi-f8b24.firebasestorage.app",
+            messagingSenderId: "434925560015",
+            appId: "1:434925560015:web:56e2a44f5e41e7bd6f97ba",
+            measurementId: "G-YYZ65MM750"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Set default filter ke bulan ini
+        const today = new Date();
+        document.getElementById('filterBulan').value = `${today.getFullYear()}-${(today.getMonth()+1).toString().padStart(2,'0')}`;
+
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('userEmail').textContent = user.email;
+                loadRiwayat(user.uid);
+            }
+        });
+
+        window.logout = function() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        };
+
+        window.loadRiwayat = function() {
+            const user = auth.currentUser;
+            if (!user) return;
+
+            const filterValue = document.getElementById('filterBulan').value;
+            const [tahun, bulan] = filterValue.split('-');
+            
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '<tr><td colspan="5" class="loading">Memuat data...</td></tr>';
+
+            db.collection('attendances')
+                .where('userId', '==', user.uid)
+                .orderBy('tanggal', 'desc')
+                .get()
+                .then((snapshot) => {
+                    if (snapshot.empty) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Belum ada data kehadiran</td></tr>';
+                        return;
+                    }
+
+                    let html = '';
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        
+                        // Filter berdasarkan bulan
+                        if (!data.tanggal.startsWith(`${tahun}-${bulan}`)) {
+                            return;
+                        }
+
+                        const jamMasuk = data.absenMasuk ? data.absenMasuk.waktu : '-';
+                        const jamPulang = data.absenPulang ? data.absenPulang.waktu : '-';
+                        
+                        let lokasi = '-';
+                        if (data.absenMasuk) {
+                            lokasi = `${data.absenMasuk.lat.toFixed(4)}, ${data.absenMasuk.lng.toFixed(4)}`;
+                        }
+
+                        let statusClass = 'badge-hadir';
+                        let statusText = 'Hadir';
+                        
+                        if (data.absenMasuk && data.absenMasuk.waktu > '09:00:00') {
+                            statusClass = 'badge-terlambat';
+                            statusText = 'Terlambat';
+                        }
+                        
+                        if (!data.absenPulang) {
+                            statusClass = 'badge-pulang';
+                            statusText = 'Belum Pulang';
+                        }
+
+                        html += `
+                            <tr>
+                                <td>${data.tanggal}</td>
+                                <td>${jamMasuk}</td>
+                                <td>${jamPulang}</td>
+                                <td><small>${lokasi}</small></td>
+                                <td><span class="badge ${statusClass}">${statusText}</span></td>
+                            </tr>
+                        `;
+                    });
+
+                    if (html === '') {
+                        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">Tidak ada data untuk bulan ini</td></tr>';
+                    } else {
+                        tbody.innerHTML = html;
+                    }
+                })
+                .catch((error) => {
+                    tbody.innerHTML = `<tr><td colspan="5" class="empty-state">Error: ${error.message}</td></tr>`;
+                });
+        };
+    </script>
+</body>
+</html>

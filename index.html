@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Absensi Karyawan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            max-width: 400px;
+            width: 100%;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #4f46e5;
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.5);
+        }
+        
+        .btn-login:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            font-weight: 500;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #059669;
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+        
+        .info-box {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .info-box p {
+            margin: 5px 0;
+        }
+        
+        .info-box .title {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 8px;
+        }
+        
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>📍 ABSENSI</h1>
+            <p>Sistem Absensi Berbasis Lokasi</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Email Perusahaan</label>
+                <input type="email" id="email" placeholder="nama@perusahaan.com" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+            
+            <button type="submit" class="btn-login" id="btnLogin">MASUK</button>
+        </form>
+        
+        <div id="message" class="message"></div>
+        
+        <div class="info-box">
+            <p class="title">🔐 Akun Demo</p>
+            <p>👤 Karyawan: karyawan@test.com</p>
+            <p>🔑 Password: karyawan123</p>
+            <div class="divider"></div>
+            <p>👑 Admin: admin@test.com</p>
+            <p>🔑 Password: admin123</p>
+            <p style="font-size: 11px; margin-top: 10px; color: #9ca3af;">*Buat akun ini di Firebase Authentication</p>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        // KONFIGURASI FIREBASE - GANTI DENGAN PUNYA ANDA!
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEE3tPOEtWnRxhkGzyVZYjrdyTpkA-3AE",
+            authDomain: "absensi-geolokasi-f8b24.firebaseapp.com",
+            projectId: "absensi-geolokasi-f8b24",
+            storageBucket: "absensi-geolokasi-f8b24.firebasestorage.app",
+            messagingSenderId: "434925560015",
+            appId: "1:434925560015:web:56e2a44f5e41e7bd6f97ba",
+            measurementId: "G-YYZ65MM750"
+        };
+
+        // Inisialisasi
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Cek session
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                // Sudah login, cek role
+                db.collection('users').doc(user.uid).get()
+                    .then((doc) => {
+                        if (doc.exists && doc.data().role === 'admin') {
+                            window.location.href = 'admin.html';
+                        } else {
+                            window.location.href = 'dashboard.html';
+                        }
+                    })
+                    .catch(() => {
+                        window.location.href = 'dashboard.html';
+                    });
+            }
+        });
+
+        // Login form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btnLogin');
+            const msg = document.getElementById('message');
+            
+            btn.disabled = true;
+            btn.textContent = 'Memproses...';
+            msg.className = 'message';
+            
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    const user = userCredential.user;
+                    msg.className = 'message success';
+                    msg.textContent = '✅ Login berhasil! Mengalihkan...';
+                    
+                    db.collection('users').doc(user.uid).get()
+                        .then((doc) => {
+                            if (doc.exists && doc.data().role === 'admin') {
+                                setTimeout(() => window.location.href = 'admin.html', 1500);
+                            } else {
+                                setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                            }
+                        })
+                        .catch(() => {
+                            setTimeout(() => window.location.href = 'dashboard.html', 1500);
+                        });
+                })
+                .catch((error) => {
+                    let pesan = '';
+                    switch(error.code) {
+                        case 'auth/user-not-found': pesan = 'Email tidak terdaftar'; break;
+                        case 'auth/wrong-password': pesan = 'Password salah'; break;
+                        case 'auth/invalid-email': pesan = 'Email tidak valid'; break;
+                        default: pesan = 'Gagal login: ' + error.message;
+                    }
+                    msg.className = 'message error';
+                    msg.textContent = '❌ ' + pesan;
+                    btn.disabled = false;
+                    btn.textContent = 'MASUK';
+                });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi - Absensi Karyawan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: #f3f4f6;
+        }
+        
+        /* Navbar (sama seperti dashboard) */
+        .navbar {
+            background: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .nav-brand {
+            font-size: 24px;
+            font-weight: 700;
+            color: #4f46e5;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-menu {
+            display: flex;
+            gap: 10px;
+            list-style: none;
+        }
+        
+        .nav-menu a {
+            text-decoration: none;
+            color: #4b5563;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        
+        .nav-menu a:hover,
+        .nav-menu a.active {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .nav-user {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-email {
+            color: #4b5563;
+            font-weight: 500;
+            font-size: 14px;
+            background: #f3f4f6;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+        
+        .btn-logout {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 90px auto 40px;
+            padding: 0 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .location-status {
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid;
+        }
+        
+        .status-aman {
+            background: #ecfdf5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+        
+        .status-bahaya {
+            background: #fef2f2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+        
+        .status-loading {
+            background: #fffbeb;
+            border-left-color: #f59e0b;
+            color: #92400e;
+        }
+        
+        .time-display {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .time-clock {
+            font-size: 64px;
+            font-weight: 700;
+            color: #4f46e5;
+            line-height: 1.2;
+            font-family: monospace;
+        }
+        
+        .time-date {
+            font-size: 20px;
+            color: #6b7280;
+            margin-top: 10px;
+        }
+        
+        .info-box {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        
+        .info-box p {
+            margin: 10px 0;
+            color: #4b5563;
+        }
+        
+        .info-box .label {
+            font-weight: 600;
+            color: #4f46e5;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .btn-absensi {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: none;
+            font-size: 24px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2);
+        }
+        
+        .btn-absensi:not(:disabled):hover {
+            transform: scale(1.05);
+        }
+        
+        .btn-masuk {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-masuk:not(:disabled):hover {
+            background: #059669;
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.4);
+        }
+        
+        .btn-pulang {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-pulang:not(:disabled):hover {
+            background: #4338ca;
+            box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.4);
+        }
+        
+        .btn-absensi:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-absensi small {
+            font-size: 14px;
+            font-weight: normal;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            color: #6b7280;
+        }
+        
+        .info-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+        
+        .message.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+            display: block;
+        }
+        
+        .message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .navbar {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .btn-absensi {
+                width: 150px;
+                height: 150px;
+                font-size: 18px;
+            }
+            
+            .time-clock {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">📍 AbsensiKaryawan</div>
+        <ul class="nav-menu">
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="kehadiran.html" class="active">Kehadiran</a></li>
+            <li><a href="riwayat.html">Riwayat</a></li>
+            <li><a href="profil.html">Profil</a></li>
+        </ul>
+        <div class="nav-user">
+            <span class="user-email" id="userEmail">Memuat...</span>
+            <button onclick="logout()" class="btn-logout">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Card Absensi -->
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title">
+                    <span>📍</span> Form Absensi
+                </div>
+                <button onclick="refreshLokasi()" style="background: none; border: none; color: #4f46e5; cursor: pointer;">↻ Refresh</button>
+            </div>
+            
+            <!-- Status Lokasi -->
+            <div id="locationStatus" class="location-status status-loading">
+                <span>⏳</span> Mendapatkan lokasi Anda...
+            </div>
+            
+            <!-- Jam Digital -->
+            <div class="time-display">
+                <div class="time-clock" id="clock">--:--:--</div>
+                <div class="time-date" id="date">--, -- --- ----</div>
+            </div>
+            
+            <!-- Info Box -->
+            <div class="info-box">
+                <p><span class="label">📍 Koordinat Kantor:</span> -6.200000, 106.816666</p>
+                <p><span class="label">📏 Radius Izin:</span> 100 meter</p>
+                <p><span class="label">⏰ Jam Masuk:</span> 07.00 - 09.00</p>
+                <p><span class="label">⏰ Jam Pulang:</span> 16.00 - 18.00</p>
+            </div>
+            
+            <!-- Pesan -->
+            <div id="message" class="message"></div>
+            
+            <!-- Tombol Absensi -->
+            <div class="button-group">
+                <button id="btnMasuk" class="btn-absensi btn-masuk" onclick="absenMasuk()" disabled>
+                    <span>↗️</span>
+                    ABSEN MASUK
+                    <small>07.00 - 09.00</small>
+                </button>
+                
+                <button id="btnPulang" class="btn-absensi btn-pulang" onclick="absenPulang()" disabled>
+                    <span>↙️</span>
+                    ABSEN PULANG
+                    <small>16.00 - 18.00</small>
+                </button>
+            </div>
+            
+            <!-- Info Absensi -->
+            <div style="margin-top: 30px;">
+                <div class="info-row">
+                    <span class="info-label">Status Hari Ini</span>
+                    <span class="info-value" id="statusHariIni">Memeriksa...</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Jam Masuk</span>
+                    <span class="info-value" id="jamMasuk">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Jam Pulang</span>
+                    <span class="info-value" id="jamPulang">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Lokasi Absen</span>
+                    <span class="info-value" id="lokasiAbsen">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script>
+        // Konfigurasi Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBEE3tPOEtWnRxhkGzyVZYjrdyTpkA-3AE",
+            authDomain: "absensi-geolokasi-f8b24.firebaseapp.com",
+            projectId: "absensi-geolokasi-f8b24",
+            storageBucket: "absensi-geolokasi-f8b24.firebasestorage.app",
+            messagingSenderId: "434925560015",
+            appId: "1:434925560015:web:56e2a44f5e41e7bd6f97ba",
+            measurementId: "G-YYZ65MM750"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        const KANTOR = { lat: -6.200000, lng: 106.816666 };
+        const RADIUS = 100;
+
+        let userLokasi = null;
+        let userData = null;
+
+        // Cek login
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = 'index.html';
+            } else {
+                document.getElementById('userEmail').textContent = user.email;
+                userData = user;
+                cekLokasi();
+                cekAbsensiHariIni(user.uid);
+                updateJam();
+                setInterval(updateJam, 1000);
+            }
+        });
+
+        // Logout
+        window.logout = function() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            });
+        };
+
+        // Refresh lokasi
+        window.refreshLokasi = function() {
+            cekLokasi();
+        };
+
+        // Update jam
+        function updateJam() {
+            const now = new Date();
+            const jam = now.getHours().toString().padStart(2, '0');
+            const menit = now.getMinutes().toString().padStart(2, '0');
+            const detik = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${jam}:${menit}:${detik}`;
+            
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date').textContent = now.toLocaleDateString('id-ID', options);
+        }
+
+        // Cek lokasi
+        function cekLokasi() {
+            const statusEl = document.getElementById('locationStatus');
+            
+            if (!navigator.geolocation) {
+                statusEl.innerHTML = '<span>❌</span> Browser tidak mendukung geolokasi';
+                statusEl.className = 'location-status status-bahaya';
+                return;
+            }
+
+            statusEl.innerHTML = '<span>⏳</span> Mendapatkan lokasi Anda...';
+            statusEl.className = 'location-status status-loading';
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const jarak = hitungJarak(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                        KANTOR.lat,
+                        KANTOR.lng
+                    );
+
+                    userLokasi = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude,
+                        jarak: jarak,
+                        akurasi: position.coords.accuracy
+                    };
+
+                    if (jarak <= RADIUS) {
+                        statusEl.innerHTML = `<span>✅</span> Anda dalam area kantor (${jarak.toFixed(1)} meter)`;
+                        statusEl.className = 'location-status status-aman';
+                        updateTombolAbsensi();
+                    } else {
+                        statusEl.innerHTML = `<span>❌</span> Anda di luar area kantor! (${jarak.toFixed(1)} meter)`;
+                        statusEl.className = 'location-status status-bahaya';
+                        document.getElementById('btnMasuk').disabled = true;
+                        document.getElementById('btnPulang').disabled = true;
+                    }
+                },
+                (error) => {
+                    let pesan = 'Gagal mendapat lokasi. ';
+                    if (error.code === error.PERMISSION_DENIED) {
+                        pesan += 'Izinkan akses lokasi.';
+                    }
+                    statusEl.innerHTML = `<span>❌</span> ${pesan}`;
+                    statusEl.className = 'location-status status-bahaya';
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Hitung jarak
+        function hitungJarak(lat1, lon1, lat2, lon2) {
+            const R = 6371e3;
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                    Math.cos(φ1) * Math.cos(φ2) *
+                    Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c;
+        }
+
+        // Cek absensi hari ini
+        function cekAbsensiHariIni(userId) {
+            const today = new Date().toISOString().split('T')[0];
+            
+            db.collection('attendances')
+                .where('userId', '==', userId)
+                .where('tanggal', '==', today)
+                .get()
+                .then((snapshot) => {
+                    if (!snapshot.empty) {
+                        const data = snapshot.docs[0].data();
+                        window.currentAbsenId = snapshot.docs[0].id;
+                        
+                        document.getElementById('statusHariIni').textContent = 
+                            data.absenPulang ? 'Sudah absen masuk & pulang' : 'Sudah absen masuk';
+                        
+                        if (data.absenMasuk) {
+                            document.getElementById('jamMasuk').textContent = data.absenMasuk.waktu;
+                            document.getElementById('lokasiAbsen').textContent = 
+                                `(${data.absenMasuk.lat.toFixed(4)}, ${data.absenMasuk.lng.toFixed(4)})`;
+                        }
+                        
+                        if (data.absenPulang) {
+                            document.getElementById('jamPulang').textContent = data.absenPulang.waktu;
+                        }
+                    } else {
+                        document.getElementById('statusHariIni').textContent = 'Belum absen';
+                    }
+                    updateTombolAbsensi();
+                });
+        }
+
+        // Update tombol absensi
+        function updateTombolAbsensi() {
+            const btnMasuk = document.getElementById('btnMasuk');
+            const btnPulang = document.getElementById('btnPulang');
+            const status = document.getElementById('statusHariIni').textContent;
+
+            if (!userLokasi || userLokasi.jarak > RADIUS) {
+                btnMasuk.disabled = true;
+                btnPulang.disabled = true;
+                return;
+            }
+
+            if (status === 'Belum absen') {
+                btnMasuk.disabled = false;
+                btnPulang.disabled = true;
+            } else if (status === 'Sudah absen masuk') {
+                btnMasuk.disabled = true;
+                btnPulang.disabled = false;
+            } else {
+                btnMasuk.disabled = true;
+                btnPulang.disabled = true;
+            }
+        }
+
+        // Absen masuk
+        window.absenMasuk = function() {
+            if (!userLokasi || userLokasi.jarak > RADIUS) {
+                alert('Anda harus berada dalam area kantor untuk absen!');
+                return;
+            }
+
+            const now = new Date();
+            const dataAbsen = {
+                userId: userData.uid,
+                tanggal: now.toISOString().split('T')[0],
+                absenMasuk: {
+                    waktu: now.toTimeString().split(' ')[0],
+                    lat: userLokasi.lat,
+                    lng: userLokasi.lng,
+                    jarak: userLokasi.jarak,
+                    akurasi: userLokasi.akurasi
+                },
+                absenPulang: null,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            db.collection('attendances').add(dataAbsen)
+                .then(() => {
+                    showMessage('✅ Absen masuk berhasil!', 'success');
+                    cekAbsensiHariIni(userData.uid);
+                })
+                .catch((error) => {
+                    showMessage('❌ Gagal absen: ' + error.message, 'error');
+                });
+        };
+
+        // Absen pulang
+        window.absenPulang = function() {
+            if (!userLokasi || userLokasi.jarak > RADIUS) {
+                alert('Anda harus berada dalam area kantor untuk absen!');
+                return;
+            }
+
+            if (!window.currentAbsenId) {
+                showMessage('❌ Data absen masuk tidak ditemukan', 'error');
+                return;
+            }
+
+            const now = new Date();
+            const dataPulang = {
+                absenPulang: {
+                    waktu: now.toTimeString().split(' ')[0],
+                    lat: userLokasi.lat,
+                    lng: userLokasi.lng,
+                    jarak: userLokasi.jarak,
+                    akurasi: userLokasi.akurasi
+                }
+            };
+
+            db.collection('attendances').doc(window.currentAbsenId).update(dataPulang)
+                .then(() => {
+                    showMessage('✅ Absen pulang berhasil!', 'success');
+                    cekAbsensiHariIni(userData.uid);
+                })
+                .catch((error) => {
+                    showMessage('❌ Gagal absen: ' + error.message, 'error');
+                });
+        };
+
+        // Show message
+        function showMessage(text, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = `message ${type}`;
+            setTimeout(() => {
+                msg.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
